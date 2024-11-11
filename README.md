@@ -1,4 +1,4 @@
-# Music Recommendation System
+# Graph-Based Music Recommendation System
 
 This project is a graph-based music recommendation system that leverages Neo4j to analyze and recommend songs based on user preferences and song features. 
 The Django-based application supports various recommendation types, including content-based recommendations based on musical features.
