@@ -35,9 +35,9 @@ Make sure to have a virtual environment activated, then install required package
 
 3. **Set up Neo4j Database**
    
-Install Neo4j and set up a local database instance.
-Add the dataset to your Neo4j instance.
-Enable the Neo4j Graph Data Science (GDS) library.
+-- Install Neo4j and set up a local database instance.
+-- Add the dataset to your Neo4j instance, the instruction are in the graph_modeling_and_analysis.ipynb file.
+-- Enable the Neo4j Graph Data Science (GDS) library.
 
 5. **Configure Neo4j Credentials**
    
