@@ -1,6 +1,3 @@
-#MAPPATURA DEGLI URL DELL'APP
-# URLs: Definiscono le rotte, collegando URL specifici alle views.
-
 from django.urls import path
 from . import views
 

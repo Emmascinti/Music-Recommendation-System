@@ -1,5 +1,3 @@
-# CONTIENE LA LOGICA DELL'APPLICAZIONE
-# VIEWS: Contengono la logica applicativa, gestiscono le richieste degli utenti e restituiscono risposte.
 from django.shortcuts import render
 from neo4j import GraphDatabase
 import pandas as pd
@@ -18,7 +16,7 @@ class ContentBasedRecommender:
         self.driver.close()
     
     def get_similar_songs(self, song_title):
-        # restituisce 50 canzoni vicine a quella specificata in base alla cosine similarity
+        # Returns 50 songs similar to the specified one based on cosine similarity
         query = '''
         MATCH (s1:Song {title: $song_title})
         MATCH (s2:Song)-[:PERFORMED_BY]->(p:Performer)
@@ -47,7 +45,7 @@ class ContentBasedRecommender:
         with self.driver.session() as session:
             result = session.run(query)
             return [record['title'] for record in result]
-    
+        
 
     def get_similar_unheard_songs(self, song_title):
         query = '''
@@ -83,7 +81,7 @@ class ContentBasedRecommender:
             return [{"RecommendedSong": record['RecommendedSong'], "Artist": record["Artist"], "Url": record['Url']} for record in result]
 
     def get_playlist_by_genre(self):
-        #ultime 20 canzone ascoltate con il genere
+        # Return last 20 listened songs with genre
         query = '''
         MATCH (s:Song)-[:HAS_STREAMING_EVENT]->(e:StreamingEvent)
         WITH s ORDER BY e.timestamp_central DESC
@@ -110,63 +108,55 @@ class ContentBasedRecommender:
 
 
     def discover_songs_by_similarity(self):
-        recommended_songs_set = set()  # Usa un insieme per evitare duplicati
+        recommended_songs_set = set()  # Use a set to avoid duplicates
         recently_listened = self.get_recently_listened_songs()
 
         for song_title in recently_listened:
             similar_songs = self.get_similar_unheard_songs(song_title)
             
-            # Aggiungi canzoni simili all'insieme
+            # Add similar songs to the set
             for song in similar_songs:
                 recommended_songs_set.add((song["RecommendedSong"], song["Artist"], song["Url"]))
 
-            # Se ci sono meno di 2 canzoni simili, cerca i percorsi più brevi
+            # If there are less than 2 similar songs, looks for shortest paths
             if len(similar_songs) < 2:
                 shortest_path_songs = self.get_shortest_path_unheard_songs(song_title)
                 for song in shortest_path_songs:
-                    recommended_songs_set.add((song["RecommendedSong"], song["Artist"], song["Url"]))  # Aggiungi senza similarità
+                    recommended_songs_set.add((song["RecommendedSong"], song["Artist"], song["Url"])) 
 
-            # Interrompi se abbiamo già 40 canzoni
             if len(recommended_songs_set) >= 40:
                 break
 
-        # Se non abbiamo 40 canzoni, cerchiamo ulteriori raccomandazioni
         if len(recommended_songs_set) < 40:
-            # Cerca altre canzoni usando un altro criterio o ripeti il processo
             for song_title in recently_listened:
-                # Puoi decidere di cercare canzoni diverse, come canzoni recenti o generi diversi
-                similar_songs = self.get_similar_songs(song_title)  # Questo può essere un metodo alternativo
+                similar_songs = self.get_similar_songs(song_title) 
                 for song in similar_songs:
-                    recommended_songs_set.add((song["RecommendedSong"], song["Artist"], song['Url']))  # Aggiungi senza similarità
+                    recommended_songs_set.add((song["RecommendedSong"], song["Artist"], song['Url']))
 
                 if len(recommended_songs_set) >= 40:
                     break
 
-        # Converti l'insieme in una lista e limita a 40
+        # Convert set to list and limit it to 40
         return [{"RecommendedSong": song[0], "Artist": song[1], "Url": song[2]} for song in list(recommended_songs_set)[:40]]
 
     def discover_songs_by_genre(self):
-        # Ottieni le ultime 20 canzoni ascoltate e i loro generi
         recently_listened = self.get_playlist_by_genre()
         
-        recommended_songs_set = set()  # Usa un insieme per evitare duplicati
+        recommended_songs_set = set()  
 
-        # Estrai i generi dalle canzoni recentemente ascoltate
         genres = {song['genre'] for song in recently_listened}
 
-        # Per ogni genere, trova canzoni mai ascoltate
         for genre in genres:
             unheard_songs = self.get_unheard_songs_by_genre(genre)
             for song in unheard_songs:
-                recommended_songs_set.add((song["RecommendedSong"], song["Artist"], song["Url"]))  # Aggiungi senza duplicati
+                recommended_songs_set.add((song["RecommendedSong"], song["Artist"], song["Url"]))  
 
-            # Interrompi se abbiamo già 40 canzoni
             if len(recommended_songs_set) >= 40:
                 break
         return [{"RecommendedSong": song[0], "Artist": song[1], "Url": song[2]} for song in list(recommended_songs_set)[:40]]
     
     def get_streaming_trends(self):
-         # Query per ottenere il numero di eventi di streaming per giorno
+         # Return number of streamings per day
         query = '''
         MATCH (e:StreamingEvent)
         WITH e, apoc.date.parse(e.timestamp_utc, 'ms', 'MM/dd/yyyy hh:mm:ss a') AS timestamp_ms
@@ -211,6 +201,7 @@ class ContentBasedRecommender:
 
 
 def playlist_by_mood(request, title, description, filters, time_of_day=None, num=50):
+    # Playlist generator
     driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "password"))
     
     current_month = datetime.datetime.now().month
@@ -296,8 +287,6 @@ def playlist_by_mood(request, title, description, filters, time_of_day=None, num
     })
 
 
-    
-
 def home(request):
     return render(request, 'recommender/home.html')
 
@@ -332,59 +321,6 @@ def favourites(request):
     recommender.close()
     return render(request, 'recommender/favourites.html', {'recommendations': recommendations})
 
-def streaming_trends(request):
-    # Get year parameter (default to 2021 if not provided)
-    year = request.GET.get('year', 2017)
-
-    # Ensure that the year is valid
-    if int(year) not in range(2017, 2022):
-        year = 2017
-
-    recommender = ContentBasedRecommender("bolt://localhost:7687", "neo4j", "password")
-    recommendations = recommender.get_streaming_trends()
-
-    # Convert Neo4j date objects to Python date objects
-    data = [(record['Date'].to_native(), record['Count']) for record in recommendations]
-
-    recommender.close()
-
-    # Convert data into a pandas DataFrame
-    df = pd.DataFrame(data, columns=["Date", "Count"])
-
-    # Filter the data for the selected year
-    df['Date'] = pd.to_datetime(df['Date'])  # Ensure the Date column is datetime-compatible
-    df = df[df['Date'].dt.year == int(year)]
-
-    # Create 'Month' and 'Day' columns for plotting purposes
-    df['Month'] = df['Date'].dt.month
-    df['Day'] = df['Date'].dt.day
-
-    # Pivot the data to create a matrix where each row is a month and each column is a day
-    pivot_table = df.pivot_table(index='Month', columns='Day', values='Count', aggfunc='sum', fill_value=0)
-    cmap = sns.cubehelix_palette(start=2, rot=0, dark=0, light=.95, reverse=False, as_cmap=True)
-    # Create a heatmap
-    plt.figure(figsize=(12, 4.5))
-    sns.heatmap(pivot_table, cmap=cmap, cbar=True, cbar_kws={
-    'label': 'Streaming Count',        # Label for the colorbar (acting as a legend)
-    'orientation': 'vertical',         # Colorbar is vertical (default)
-    'shrink': 0.8,                     # Shrink the colorbar to 80% of its size
-    'ticks': [0, 50, 100, 150],        # Custom tick values on the colorbar (adjust as needed)
-    'fraction': 0.02,                  # Fraction of the space to allocate to the colorbar
-    'pad': 0.05                        # Padding between the heatmap and colorbar
-    }, square=True)
-
-    # Save the plot to a BytesIO object and encode it to base64 for embedding in HTML
-    img_buffer = BytesIO()
-    plt.savefig(img_buffer, format='png')
-    img_buffer.seek(0)
-    plot_url = base64.b64encode(img_buffer.getvalue()).decode('utf-8')
-    img_buffer.close()
-
-    # Pass data and the plot URL to the template
-    return render(request, 'recommender/streaming_trends.html', {
-        'plot_url': plot_url,
-        'year': year,
-    })
 
 def top50(request):
     recommender = ContentBasedRecommender("bolt://localhost:7687", "neo4j", "password")
@@ -512,7 +448,7 @@ class PlaylistRecommender:
     def get_custom_recommendations(self, danceability, energy, valence, tempo, acousticness):
         query = '''
         MATCH (s1:Song)
-WHERE            (s1.danceability >= $danceability - 0.2 AND s1.danceability <= $danceability + 0.2) AND
+        WHERE (s1.danceability >= $danceability - 0.2 AND s1.danceability <= $danceability + 0.2) AND
             (s1.energy >= $energy - 0.2 AND s1.energy <= $energy + 0.2) AND
             (s1.valence >= $valence - 0.2 AND s1.valence <= $valence + 0.2) AND
             (s1.tempo >= $tempo - 10 AND s1.tempo <= $tempo + 10) AND
@@ -559,3 +495,57 @@ def create_playlist(request):
         recommender.close()
 
     return render(request, 'recommender/create_playlist.html', {'recommendations': recommendations})
+
+def streaming_trends(request):
+    # Get year parameter (default to 2021 if not provided)
+    year = request.GET.get('year', 2017)
+
+    # Ensure that the year is valid
+    if int(year) not in range(2017, 2022):
+        year = 2017
+
+    recommender = ContentBasedRecommender("bolt://localhost:7687", "neo4j", "password")
+    recommendations = recommender.get_streaming_trends()
+
+    # Convert Neo4j date objects to Python date objects
+    data = [(record['Date'].to_native(), record['Count']) for record in recommendations]
+
+    recommender.close()
+
+    # Convert data into a pandas DataFrame
+    df = pd.DataFrame(data, columns=["Date", "Count"])
+
+    # Filter the data for the selected year
+    df['Date'] = pd.to_datetime(df['Date'])  # Ensure the Date column is datetime-compatible
+    df = df[df['Date'].dt.year == int(year)]
+
+    # Create 'Month' and 'Day' columns for plotting purposes
+    df['Month'] = df['Date'].dt.month
+    df['Day'] = df['Date'].dt.day
+
+    # Pivot the data to create a matrix where each row is a month and each column is a day
+    pivot_table = df.pivot_table(index='Month', columns='Day', values='Count', aggfunc='sum', fill_value=0)
+    cmap = sns.cubehelix_palette(start=2, rot=0, dark=0, light=.95, reverse=False, as_cmap=True)
+    # Create a heatmap
+    plt.figure(figsize=(12, 4.5))
+    sns.heatmap(pivot_table, cmap=cmap, cbar=True, cbar_kws={
+    'label': 'Streaming Count',        # Label for the colorbar (acting as a legend)
+    'orientation': 'vertical',         # Colorbar is vertical (default)
+    'shrink': 0.8,                     # Shrink the colorbar to 80% of its size
+    'ticks': [0, 50, 100, 150],        # Custom tick values on the colorbar (adjust as needed)
+    'fraction': 0.02,                  # Fraction of the space to allocate to the colorbar
+    'pad': 0.05                        # Padding between the heatmap and colorbar
+    }, square=True)
+
+    # Save the plot to a BytesIO object and encode it to base64 for embedding in HTML
+    img_buffer = BytesIO()
+    plt.savefig(img_buffer, format='png')
+    img_buffer.seek(0)
+    plot_url = base64.b64encode(img_buffer.getvalue()).decode('utf-8')
+    img_buffer.close()
+
+    # Pass data and the plot URL to the template
+    return render(request, 'recommender/streaming_trends.html', {
+        'plot_url': plot_url,
+        'year': year,
+    })
