@@ -1,0 +1,17 @@
+{% extends 'recommender/base.html' %}
+
+{% block title %}Top 50{% endblock %}
+
+{% block content %}
+<h1>Top 50</h1>
+
+{% if recommendations %}
+    <ul>
+        {% for song in recommendations %}
+            <li>{{ song.Song }} by {{ song.Artist }}</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No songs found.</p>
+{% endif %}
+{% endblock %}

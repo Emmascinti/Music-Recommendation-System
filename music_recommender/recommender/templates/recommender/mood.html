@@ -1,0 +1,59 @@
+{% extends 'recommender/base.html' %}
+{% load static %}
+
+{% block welcome_message %}
+<p>Discover playlists based on your mood!</p>
+{% endblock %}
+{% block title %}Mood{% endblock %}
+
+{% block content %}
+<div class="mood-container">
+    <h1>Discover Playlists Based on Your Mood</h1>
+    <div class="playlist-grid">
+        <a href="{% url 'morningCoffee' %}" class="playlist-card">
+            <img src="{% static 'images/morning_coffee.jpg' %}" alt="Morning Coffee">
+            <div class="playlist-info">Morning Coffee</div>
+        </a>
+        <a href="{% url 'highEnergy' %}" class="playlist-card">
+            <img src="{% static 'images/high_energy.jpg' %}" alt="High-Energy Workout">
+            <div class="playlist-info">High-Energy Workout</div>
+        </a>
+        <a href="{% url 'chill' %}" class="playlist-card">
+            <img src="{% static 'images/chill_relax.jpg' %}" alt="Chill & Relax">
+            <div class="playlist-info">Chill & Relax</div>
+        </a>
+        <a href="{% url 'feelGood' %}" class="playlist-card">
+            <img src="{% static 'images/feel_good.jpg' %}" alt="Feel-Good Hits">
+            <div class="playlist-info">Feel-Good Hits</div>
+        </a>
+        <a href="{% url 'deepFocus' %}" class="playlist-card">
+            <img src="{% static 'images/deep_focus.jpg' %}" alt="Deep Focus">
+            <div class="playlist-info">Deep Focus</div>
+        </a>
+        <a href="{% url 'party' %}" class="playlist-card">
+            <img src="{% static 'images/party.jpg' %}" alt="Party">
+            <div class="playlist-info">Party</div>
+        </a>
+        <a href="{% url 'lateNightVibes' %}" class="playlist-card">
+            <img src="{% static 'images/late_night.jpg' %}" alt="Late Night Vibes">
+            <div class="playlist-info">Late Night Vibes</div>
+        </a>
+        <a href="{% url 'instrumentalChillout' %}" class="playlist-card">
+            <img src="{% static 'images/instrumental_chillout.jpg' %}" alt="Instrumental Chillout">
+            <div class="playlist-info">Instrumental Chillout</div>
+        </a>
+        <a href="{% url 'onTheRoad' %}" class="playlist-card">
+            <img src="{% static 'images/road.jpg' %}" alt="On The Road">
+            <div class="playlist-info">On The Road</div>
+        </a>
+        <a href="{% url 'romanticVibes' %}" class="playlist-card">
+            <img src="{% static 'images/romantic_vibes.jpg' %}" alt="Romantic Vibes">
+            <div class="playlist-info">Romantic Vibes</div>
+        </a>
+        <a href="{% url 'top50' %}" class="playlist-card">
+            <img src="{% static 'images/top_50.jpg' %}" alt="Top 50 Hits">
+            <div class="playlist-info">Top 50 Hits</div>
+        </a>
+    </div>
+</div>
+{% endblock %}

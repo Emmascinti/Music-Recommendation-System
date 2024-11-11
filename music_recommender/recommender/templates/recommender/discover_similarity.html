@@ -1,0 +1,25 @@
+{% extends 'recommender/base.html' %}
+
+{% block content %}
+<h1>Discover New Songs by Similarity</h1>
+<br>
+
+{% if recommendations %}
+    <ul class="songs-list">
+        {% for song in recommendations %}
+            <li class="song-item">
+                <span class="song-title">{{ song.RecommendedSong }}
+                    {% if song.Url %}
+                    <a href="{{ song.Url }}" class="song-preview" target="_blank">
+                        <i class="fas fa-music"></i>
+                    </a>
+                    {% endif %}
+                </span> 
+                <span class="song-artist">{{ song.Artist }}</span>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No recommendations found.</p>
+{% endif %}
+{% endblock %}

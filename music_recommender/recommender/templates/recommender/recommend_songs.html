@@ -1,0 +1,42 @@
+{% extends 'recommender/base.html' %}
+{% block welcome_message %}
+<p>Search a song you like, I'll recommend you more!</p>
+{% endblock %}
+{% block title %}Find Similar Songs{% endblock %}
+
+{% block content %}
+<div class="main-content" >
+    <h1 class="title">Find Similar Songs</h1>
+    <br>
+    <div class="search-bar">
+        <form method="POST" style="display: flex; align-items: center; width: 100%;">
+            {% csrf_token %}
+            <input type="search" name="song_title" placeholder="Enter a song title" required>
+            <button type="submit" aria-label="Search">🔍</button>
+        </form>
+    </div>
+    <br>
+
+    <main>
+        {% if recommendations %}
+            <div class="results">
+                <ul style="list-style-type: none; padding: 0;">
+                    {% for song in recommendations %}
+                    <li class="song-item">
+                        <span class="song-title">{{ song.RecommendedSong }}
+                            {% if song.Url %}
+                            <a href="{{ song.Url }}" class="song-preview" target="_blank">
+                                <i class="fas fa-music"></i>
+                            </a>
+                            {% endif %}
+                        </span> 
+                        <span class="song-artist">{{ song.Artist }}</span>
+                    </li>                    
+                    {% endfor %}
+                </ul>
+            </div>
+        {% elif recommendations is not none %}
+            <p style="color: #fff;">No similar songs found.</p>
+        {% endif %}
+    </main>
+{% endblock %}

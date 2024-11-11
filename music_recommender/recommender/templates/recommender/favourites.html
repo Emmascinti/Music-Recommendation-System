@@ -1,0 +1,29 @@
+{% extends 'recommender/base.html' %}
+
+{% block welcome_message %}
+<p>Your favourites songs at the moment!</p>
+{% endblock %}
+
+{% block content %}
+<h1>Your favourites</h1>
+<br>
+
+{% if recommendations %}
+    <ul class="songs-list">
+        {% for song in recommendations %}
+            <li class="song-item">
+                <span class="song-title">{{ song.Song }}
+                    {% if song.Url %}
+                    <a href="{{ song.Url }}" class="song-preview" target="_blank">
+                        <i class="fas fa-music"></i>
+                    </a>
+                    {% endif %}
+                </span> 
+                <span class="song-artist">{{ song.Artist }}</span>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No songs found.</p>
+{% endif %}
+{% endblock %}

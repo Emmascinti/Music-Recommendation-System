@@ -1,0 +1,66 @@
+{% extends "recommender/base.html" %}
+{% block content %}
+<h1>Create your own playlist</h1>
+<br>
+<form method="POST">
+    {% csrf_token %}
+    <br>
+    <div class="slider-container">
+        <label for="danceability">Danceability:</label>
+        <input type="range" id="danceability" name="danceability" min="0" max="1" step="0.01" oninput="updateValue(this)">
+        <span class="range-value" id="danceability-value">0.5</span>
+    </div>
+    <br>
+    <div class="slider-container">
+        <label for="energy">Energy:</label>
+        <input type="range" id="energy" name="energy" min="0" max="1" step="0.1" oninput="updateValue(this)">
+        <span class="range-value" id="energy-value">0.5</span>
+    </div>
+    <br>
+    <div class="slider-container">
+        <label for="valence">Valence:</label>
+        <input type="range" id="valence" name="valence" min="0" max="1" step="0.1" oninput="updateValue(this)">
+        <span class="range-value" id="valence-value">0.5</span>
+    </div>
+    <br>
+    <div class="slider-container">
+        <label for="tempo">Tempo:</label>
+        <input type="range" id="tempo" name="tempo" min="50" max="200" step="5" oninput="updateValue(this)">
+        <span class="range-value" id="tempo-value">120</span>
+    </div>
+    <br>
+    <div class="slider-container">
+        <label for="acousticness">Acousticness:</label>
+        <input type="range" id="acousticness" name="acousticness" min="0" max="1" step="0.1" oninput="updateValue(this)">
+        <span class="range-value" id="acousticness-value">0.5</span>
+    </div>
+    <br>
+    <button type="submit" class = "spotify-button">Generate Playlist</button>
+</form>
+<br>
+
+    {% if recommendations %}
+    <h2>Raccomandazioni</h2>
+    <div>
+    <div class="results">
+        <ul style="list-style-type: none; padding: 0;">
+            {% for song in recommendations %}
+            <li class="song-item">
+                <span class="song-title">{{ song.RecommendedSong }}
+                    {% if song.Url %}
+                    <a href="{{ song.Url }}" class="song-preview" target="_blank">
+                        <i class="fas fa-music"></i>
+                    </a>
+                    {% endif %}
+                </span> 
+                <span class="song-artist">{{ song.Artist }}</span>
+            </li>                    
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% elif recommendations is not none %}
+    <p style="color: #fff;">No similar songs found.</p>
+{% endif %}
+
+{% endblock %}

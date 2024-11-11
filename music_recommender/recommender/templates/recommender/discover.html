@@ -1,0 +1,14 @@
+{% extends 'recommender/base.html' %}
+{% load static %}
+{% block welcome_message %}
+<p>Discover new songs based on similarity or genre!</p>
+{% endblock %}
+{% block content %}
+<h1>Songs you might like</h1>
+<br>
+<div class="sidebar-section">
+    <a href="{% url 'discover_similarity' %}" class="sidebar-link">By Similarity</a>
+    <a href="{% url 'discover_genre' %}" class="sidebar-link">By Genre</a>
+</div>
+<img src="{% static 'images/image.png' %}" alt="Music Recommender Image" style="height: 50%; padding: 20px; box-sizing: border-box;">
+{% endblock %}

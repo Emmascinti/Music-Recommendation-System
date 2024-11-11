@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music recommender 🎵</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="{% static 'js/script.js' %}"></script>
+</head>
+<body>
+    
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo-container">
+            <img src="{% static 'images\note2.jpg' %}" alt="Spotify Logo" style="width: 100%; height: auto; padding: 20px; box-sizing: border-box;">
+        </div>
+
+        <div class="sidebar-section">
+            {% block welcome_message %}{% endblock %}
+        </div>
+
+        <div class="sidebar-section">
+            <!-- Evidenzia il link attivo -->
+            <a href="{% url 'home' %}" class="sidebar-link {% if request.path == '/' %}active{% endif %}">🏠 Home</a>
+            <a href="{% url 'favourites' %}" class="sidebar-link {% if request.path == '/favourites/' %}active{% endif %}">❤️‍🔥 Your Favourites</a>
+        </div>
+
+        <div class="sidebar-section">
+            <a href="{% url 'recommend_songs' %}" class="sidebar-link {% if request.path == '/recommend_songs/' %}active{% endif %}">🔍 Find Similar Songs</a>
+            <a href="{% url 'discover' %}" class="sidebar-link {% if request.path == '/discover/' %}active{% endif %}">🌍 Discover New Songs</a>
+            <a href="{% url 'mood' %}" class="sidebar-link {% if request.path == '/mood/' %}active{% endif %}">🌄​ Mood</a>
+            <a href="{% url 'create_playlist' %}" class="sidebar-link {% if request.path == '/create_playlist/' %}active{% endif %}">🎨​ Create a playlist</a>    
+            <a href="{% url 'streaming_trends' %}" class="sidebar-link {% if request.path == '/streaming_trends/' %}active{% endif %}">📋 Streaming Trends</a>
+        </div>
+    </div>
+
+    <div class="main-content" style="margin-left:240px; padding:20px; min-height: 500px; ">
+        <header class="main-content">
+            <div class="content">
+                <div id="loading-spinner" class="loading-spinner">
+                    <div class="spinner"></div>
+                </div>
+                {% block content %}
+                <!-- Contenuto specifico della pagina -->
+                {% endblock %}
+            </div>
+        </header>
+    </div>
+</body>
+</html>
+

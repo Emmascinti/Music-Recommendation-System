@@ -1,0 +1,24 @@
+{% extends 'recommender/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+<br>
+<p>{{ description }}</p>  <!-- Mostra la descrizione della playlist -->
+<br>
+<ul class="songs-list">
+    {% for song in recommendations %}
+            <li class="song-item">
+                <span class="song-title">{{ song.title }}
+                    {% if song.Url %}
+                    <a href="{{ song.Url }}" class="song-preview" target="_blank">
+                        <i class="fas fa-music"></i>
+                    </a>
+                    {% endif %}
+                </span> 
+                <span class="song-artist">{{ song.artist }}</span>
+            </li>
+        {% endfor %}
+</ul>
+{% endblock %}

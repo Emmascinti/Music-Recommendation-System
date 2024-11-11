@@ -1,0 +1,31 @@
+{% extends 'recommender/base.html' %}
+
+{% block welcome_message %}
+<p>Visualize your streaming trends!</p>
+{% endblock %}
+
+{% block content %}
+<h1>Streaming Trends</h1>
+<br>
+<!-- Year Selection Form -->
+<form method="get" action="{% url 'streaming_trends' %}">
+    <label for="year">Select Year:</label>
+    <select name="year" id="year" class="spotify-dropdown">
+        <option value="2017" {% if year == '2017' %}selected{% endif %}>2017</option>
+        <option value="2018" {% if year == '2018' %}selected{% endif %}>2018</option>
+        <option value="2019" {% if year == '2019' %}selected{% endif %}>2019</option>
+        <option value="2020" {% if year == '2020' %}selected{% endif %}>2020</option>
+        <option value="2021" {% if year == '2021' %}selected{% endif %}>2021</option>
+    </select>
+    <button type="submit" class="spotify-button">View Heatmap</button>
+</form>
+
+{% if plot_url %}
+<br>
+    <h2>Heatmap for {{ year }} </h2>
+    <img src="data:image/png;base64,{{ plot_url }}" alt="Streaming Trends Heatmap">
+{% else %}
+    <p>No streaming data available for this year.</p>
+{% endif %}
+
+{% endblock %}
